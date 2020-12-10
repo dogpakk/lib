@@ -29,7 +29,7 @@ func RightPad(original interface{}, padder string, count int) string {
 }
 
 func pad(original interface{}, padder string, orderFunc func(string, string) (string, string), count int) string {
-	originalStr := fmt.Sprintf("%s", original)
+	originalStr := fmt.Sprintf("%v", original)
 	if count <= 0 {
 		return originalStr
 	}

@@ -5,6 +5,15 @@ import (
 	"strings"
 )
 
+func PrefixAndZeroPad(original, prefix string, count int, includePrefixInPadLength bool) string {
+	padLength := count
+	if includePrefixInPadLength {
+		padLength = count - len(prefix)
+	}
+
+	return fmt.Sprintf("%s%s", prefix, LeftPad(original, "0", padLength))
+}
+
 func ZeroPad(original string, count int) string {
 	return LeftPad(original, "0", count)
 }

@@ -29,7 +29,16 @@ func RightPad(original, padder string, count int) string {
 }
 
 func pad(original, padder string, orderFunc func(string, string) (string, string), count int) string {
-	needed := count - len(original)
+	if count <= 0 {
+		return original
+	}
+
+	var needed int
+	needed = count - len(original)
+	if needed <= 0 {
+		return original
+	}
+
 	padding := strings.Repeat(padder, needed)
 	left, right := orderFunc(padding, original)
 	return fmt.Sprintf("%s%s", left, right)

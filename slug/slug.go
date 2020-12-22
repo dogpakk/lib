@@ -10,11 +10,11 @@ import (
 const (
 	// Google doesn't really say anything about length, so just something sensible
 	// Basically lower case letters and numbers and hyphens (which Google prefers to underscores)
-	slugRegex = `^[a-z0-9]+(?:[:-][a-z0-9]+)*$`
+	SlugRegex = "^[a-z0-9]+(?:[:-][a-z0-9]+)*$"
 )
 
 var (
-	validSlug = regexp.MustCompile(slugRegex)
+	validSlug = regexp.MustCompile(SlugRegex)
 )
 
 type Slug string

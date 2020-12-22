@@ -25,3 +25,24 @@ func CalcUTCOffset(timeZone string) (int, error) {
 func FormatBritishDate(dt time.Time) string {
 	return dt.Format(BritishDate)
 }
+
+func AddDays(t time.Time, days int) time.Time {
+	return t.Add(time.Hour * 24 * time.Duration(days))
+}
+
+// DaysFromNowIgnoringTime works out the day differential from now but based on actual days, rather than units of 24hrs
+func DaysFromNowIgnoringTime(t time.Time, days int) int {
+	futureDate := AddDays(t, days)
+	futureDay := futureDate.YearDay()
+	futureYear := futureDate.Year()
+
+	daysDiff := time.Now().YearDay() - futureDay
+	yearsDiff := time.Now().Year() - futureYear
+	totalDaysDiff := (yearsDiff * 365) + daysDiff
+
+	if totalDaysDiff <= 0 {
+		totalDaysDiff = 0
+	}
+
+	return totalDaysDiff
+}

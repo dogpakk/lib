@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+// Padding
+
 func PrefixAndZeroPad(original interface{}, prefix string, count int, includePrefixInPadLength bool) string {
 	padLength := count
 	if includePrefixInPadLength {
@@ -43,4 +45,19 @@ func pad(original interface{}, padder string, orderFunc func(string, string) (st
 	padding := strings.Repeat(padder, needed)
 	left, right := orderFunc(padding, originalStr)
 	return fmt.Sprintf("%s%s", left, right)
+}
+
+// Names
+
+func FirstNameWithDefault(s, def string) string {
+	if s == "" {
+		return def
+	}
+
+	names := strings.Split(strings.TrimSpace(s), " ")
+	if len(names) == 0 {
+		return def
+	}
+
+	return names[0]
 }

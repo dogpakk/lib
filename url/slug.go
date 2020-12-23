@@ -1,4 +1,4 @@
-package slug
+package url
 
 // Google Guidelines on URLS
 // https://developers.google.com/search/docs/advanced/guidelines/url-structure

@@ -1,5 +1,5 @@
 package email
 
 const (
-	EmailRegex = `.+@+\..`
+	EmailRegex = `.+@.+\..+`
 )

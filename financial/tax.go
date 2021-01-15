@@ -51,7 +51,7 @@ func (tx *TaxCalc) AddTax() {
 
 	// Unit tax amount and inc tax are first calculated so they are correct
 	// in and of themselves
-	unitTax := tx.UnitEx.byPercentage(taxPercentage)
+	unitTax := tx.UnitEx.ByPercentage(taxPercentage)
 	unitInc := tx.UnitEx + unitTax
 
 	tx.Ex = tx.UnitEx * Cents(qty)
@@ -77,7 +77,7 @@ func (tx *TaxCalc) RemoveTax() {
 	// Remeber, this is the unit method, so division by qty is first
 	// which gets us to a unit inc
 	unitInc := tx.Inc / Cents(qty)
-	unitEx := unitInc.removePercentage(taxPercentage)
+	unitEx := unitInc.RemovePercentage(taxPercentage)
 	unitTax := unitInc - unitEx
 
 	tx.UnitEx = unitEx

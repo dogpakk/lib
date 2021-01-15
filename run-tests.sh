@@ -7,3 +7,7 @@ cd ..
 cd str
 go test
 cd ..
+
+cd financial
+go test
+cd ..

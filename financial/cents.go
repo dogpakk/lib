@@ -168,6 +168,18 @@ func CompareCentDicts(cd1, cd2 CentDict) bool {
 	return true
 }
 
+func (cd CentDict) HasOneKey() (bool, string, Cents) {
+	if len(cd) > 1 {
+		return false, "", 0
+	}
+
+	for k, v := range cd {
+		return true, k, v
+	}
+
+	return false, "", 0
+}
+
 func (cd CentDict) Compare(cd1 CentDict) bool {
 	// test the map backwards and forwards to make sure they are really the same
 	return CompareCentDicts(cd, cd1) && CompareCentDicts(cd1, cd)

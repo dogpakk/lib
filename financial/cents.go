@@ -168,9 +168,19 @@ func CompareCentDicts(cd1, cd2 CentDict) bool {
 	return true
 }
 
-func (cd CentDict) HasPositiveKeys() bool {
+func (cd CentDict) HasPositiveVals() bool {
 	for _, v := range cd {
 		if v > 0 {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (cd CentDict) HasNegativeVals() bool {
+	for _, v := range cd {
+		if v < 0 {
 			return true
 		}
 	}

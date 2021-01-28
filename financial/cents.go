@@ -200,6 +200,19 @@ func (cd CentDict) Average(n int) CentDict {
 	return res
 }
 
+func (cd CentDict) ByQty(n int) CentDict {
+	if n == 0 || n == 1 {
+		return cd
+	}
+
+	res := CentDict{}
+	for k, v := range cd {
+		res[k] = v.ByQty(n)
+	}
+
+	return res
+}
+
 func (cd CentDict) HasPositiveVals() bool {
 	for _, v := range cd {
 		if v > 0 {

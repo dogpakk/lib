@@ -2,6 +2,11 @@ package financial
 
 import "testing"
 
+func nilCentDict() CentDict {
+	var n CentDict
+	return n
+}
+
 func TestCentRatio(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -33,6 +38,7 @@ func TestHasOneKey(t *testing.T) {
 		expectedString string
 		expectedCents  Cents
 	}{
+		{"nil", nilCentDict(), false, "", 0},
 		{"blank", CentDict{}, false, "", 0},
 		{"one key", CentDict{"myKey": 99}, true, "myKey", 99},
 		{"two keys", CentDict{"myKey": 99, "anotherKey": 999}, false, "", 0},
@@ -53,5 +59,37 @@ func TestHasOneKey(t *testing.T) {
 			t.Errorf("Testing %s.  Incorrect bool. Expected %v; got %v", test.name, test.expectedCents, c)
 		}
 	}
+}
 
+func TestMergeWith(t *testing.T) {
+	tests := []struct {
+		name          string
+		src, incoming CentDict
+		expected      CentDict
+	}{
+		{
+			name:     "both nil",
+			src:      nilCentDict(),
+			incoming: nilCentDict(),
+			expected: CentDict{},
+		},
+		{
+			name:     "incoming nil",
+			incoming: nilCentDict(),
+			src: CentDict{
+				"a": 1000,
+			},
+			expected: CentDict{
+				"a": 1000,
+			},
+		},
+	}
+
+	for _, test := range tests {
+		test.src.MergeWith(test.incoming)
+
+		if !test.src.Compare(test.expected) {
+			t.Errorf("Testing %s.  Comparison failed. Expected %v; got %v", test.name, test.expected, test.src)
+		}
+	}
 }

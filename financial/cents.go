@@ -168,6 +168,38 @@ func CompareCentDicts(cd1, cd2 CentDict) bool {
 	return true
 }
 
+// IsZero will be true for a CentDict that is either nil,
+// or has ANY values that are not 0
+func (cd CentDict) IsZero() bool {
+	if cd == nil {
+		return true
+	}
+
+	for _, v := range cd {
+		if v != 0 {
+			return false
+		}
+	}
+
+	return true
+}
+
+// Average will calculate the average of EACH KEY using a single divisor
+func (cd CentDict) Average(n int) CentDict {
+	if n == 0 || n == 1 {
+		return cd
+	}
+
+	res := CentDict{}
+	for k, v := range cd {
+		if v > 0 {
+			res[k] = v.DivideByQty(n)
+		}
+	}
+
+	return res
+}
+
 func (cd CentDict) HasPositiveVals() bool {
 	for _, v := range cd {
 		if v > 0 {
@@ -205,7 +237,29 @@ func (cd CentDict) Compare(cd1 CentDict) bool {
 	return CompareCentDicts(cd, cd1) && CompareCentDicts(cd1, cd)
 }
 
+func (cd CentDict) Invert() {
+	// If map is nil, we can just return
+	if cd == nil {
+		return
+	}
+
+	for k, amount := range cd {
+		cd[k] = -amount
+	}
+}
+
+// AddToKey and MergeWith cannot be called on nil maps
+// I can't find a way to deal neatly with this problem
+// as trying to initialise the map in the function call
+// causes the initial reference to be lost so the caller
+// doesn't see the results of the function.
+// Perhaps there's a way to initalise the map in place using
+// some reflect code, but for now, just be sure
+// NOT TO CALL THESE ON NIL MAPS
+
 func (cd CentDict) AddToKey(k string, amount Cents) {
+	// TODO: nil
+
 	if existing, ok := cd[k]; ok {
 		cd[k] = existing + amount
 	} else {
@@ -214,18 +268,17 @@ func (cd CentDict) AddToKey(k string, amount Cents) {
 }
 
 func (cd CentDict) MergeWith(incoming CentDict) {
+	// If the incoming is nil, we can just return
+	if incoming == nil {
+		return
+	}
+
 	for k, amount := range incoming {
 		if existing, ok := cd[k]; ok {
 			cd[k] = existing + amount
 		} else {
 			cd[k] = amount
 		}
-	}
-}
-
-func (cd CentDict) Invert() {
-	for k, amount := range cd {
-		cd[k] = -amount
 	}
 }
 

@@ -19,6 +19,12 @@ func (c Cents) LimitTo(n Cents) Cents {
 	return c
 }
 
+func (c Cents) Min(n Cents) Cents {
+	if c < n {
+		return n
+	}
+}
+
 func (c Cents) ByQty(qty int) Cents {
 	return c * Cents(qty)
 }

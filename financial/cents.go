@@ -23,6 +23,8 @@ func (c Cents) Min(n Cents) Cents {
 	if c < n {
 		return n
 	}
+
+	return c
 }
 
 func (c Cents) ByQty(qty int) Cents {

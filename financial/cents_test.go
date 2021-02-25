@@ -93,3 +93,43 @@ func TestMergeWith(t *testing.T) {
 		}
 	}
 }
+
+func TestRemoveTaxableSurcharge(t *testing.T) {
+	tests := []struct {
+		name          string
+		netAmount     Cents
+		surcharge     float64
+		taxPercentage float64
+		expected      Cents
+	}{
+		{
+			name:          "zero",
+			netAmount:     0,
+			surcharge:     0,
+			taxPercentage: 0,
+			expected:      0,
+		},
+		{
+			name:          "without tax",
+			netAmount:     5500,
+			surcharge:     10,
+			taxPercentage: 0,
+			expected:      5000,
+		},
+
+		{
+			name:          "with tax",
+			netAmount:     5600,
+			surcharge:     10,
+			taxPercentage: 20,
+			expected:      5000,
+		},
+	}
+
+	for _, test := range tests {
+		res := test.netAmount.RemoveTaxableSurcharge(test.surcharge, test.taxPercentage)
+		if res != test.expected {
+			t.Errorf("Testing %s.  Comparison failed. Expected %v; got %v", test.name, test.expected, res)
+		}
+	}
+}

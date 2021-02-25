@@ -11,6 +11,14 @@ import (
 
 type Cents int
 
+func percentageToDecimal(pc float64) float64 {
+	return pc / 100
+}
+
+func percentageToDecimalIncrementer(pc float64) float64 {
+	return 1 + percentageToDecimal(pc)
+}
+
 func (c Cents) LimitTo(n Cents) Cents {
 	if c > n {
 		return n
@@ -40,15 +48,25 @@ func (c Cents) ByFloat(multiplier float64) Cents {
 }
 
 func (c Cents) ByPercentage(pc float64) Cents {
-	return c.ByFloat(pc / 100)
+	return c.ByFloat(percentageToDecimal(pc))
 }
 
 func (c Cents) RemovePercentage(pc float64) Cents {
-	return c.ByFloat(1 / (1 + (pc / 100)))
+	return c.ByFloat(1 / percentageToDecimalIncrementer(pc))
 }
 
 func (c Cents) CalcPercentageDiscount(pc float64) Cents {
 	return c.ByPercentage(pc)
+}
+
+// RemoveTaxableSurcharge works backwards from a net total that might include a surcharge which might itself be taxable
+func (c Cents) RemoveTaxableSurcharge(surchargePercentage, taxPercentage float64) Cents {
+	if surchargePercentage == 0 {
+		return c
+	}
+
+	return c.RemovePercentage(surchargePercentage * percentageToDecimalIncrementer(taxPercentage))
+
 }
 
 func (c Cents) AddTax(taxPercentage float64) (Cents, Cents) {

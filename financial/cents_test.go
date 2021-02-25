@@ -103,11 +103,18 @@ func TestRemoveTaxableSurcharge(t *testing.T) {
 		expected      Cents
 	}{
 		{
-			name:          "zero",
+			name:          "all zero",
 			netAmount:     0,
 			surcharge:     0,
 			taxPercentage: 0,
 			expected:      0,
+		},
+		{
+			name:          "zero surcharge",
+			netAmount:     5000,
+			surcharge:     0,
+			taxPercentage: 0,
+			expected:      5000,
 		},
 		{
 			name:          "without tax",

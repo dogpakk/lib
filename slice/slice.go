@@ -71,6 +71,10 @@ func StringSliceRemoveBlanks(ss []string) (res []string) {
 	return
 }
 
+func StringSliceJoinIf(ss []string, sep string) string {
+	return strings.Join(StringSliceRemoveBlanks(ss), sep)
+}
+
 func StringSliceHasNonBlanks(ss []string) bool {
 	return len(StringSliceRemoveBlanks(ss)) > 0
 }

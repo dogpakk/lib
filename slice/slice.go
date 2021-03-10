@@ -14,6 +14,16 @@ func StringIsMember(s string, ss []string) bool {
 	return false
 }
 
+func StringIsMemberCaseInsensitive(s string, ss []string) bool {
+	for _, member := range ss {
+		if strings.ToLower(member) == strings.ToLower(s) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func StringIsPrefixMemberCaseInsensitive(s string, ss []string) bool {
 	for _, member := range ss {
 		if strings.HasPrefix(strings.ToLower(s), strings.ToLower(member)) {

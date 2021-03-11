@@ -2,9 +2,21 @@ package slice
 
 import (
 	"strings"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func StringIsMember(s string, ss []string) bool {
+	for _, member := range ss {
+		if member == s {
+			return true
+		}
+	}
+
+	return false
+}
+
+func ObjectIDIsMember(s primitive.ObjectID, ss []primitive.ObjectID) bool {
 	for _, member := range ss {
 		if member == s {
 			return true

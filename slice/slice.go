@@ -14,14 +14,14 @@ func StringIsMember(s string, ss []string) bool {
 	return false
 }
 
-func StringIsMemberCaseInsensitive(s string, ss []string) bool {
+func StringIsMemberCaseInsensitive(s string, ss []string) (bool, string) {
 	for _, member := range ss {
 		if strings.ToLower(member) == strings.ToLower(s) {
-			return true
+			return true, member
 		}
 	}
 
-	return false
+	return false, ""
 }
 
 func StringIsPrefixMemberCaseInsensitive(s string, ss []string) bool {

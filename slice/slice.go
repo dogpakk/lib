@@ -124,7 +124,7 @@ func StringSliceAddToSet(s string, ss []string) []string {
 	return append(ss, s)
 }
 
-func StringSliceOrder(ss []string, desc bool) {
+func StringSliceSort(ss []string, desc bool) {
 	if !desc {
 		sort.Slice(ss, func(i, j int) bool {
 			return ss[i] > ss[j]

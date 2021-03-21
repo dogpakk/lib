@@ -61,6 +61,67 @@ func TestHasOneKey(t *testing.T) {
 	}
 }
 
+func TestKeyedCentDictAddToKey(t *testing.T) {
+	tests := []struct {
+		name     string
+		existing KeyedCentDict
+		k1, k2   string
+		amount   Cents
+		expected Cents
+	}{
+		{
+			name:     "start with blank map, add nothing",
+			existing: nilKeyedCentDict(),
+			k1:       "K1",
+			k2:       "K2",
+			amount:   0,
+			expected: 0,
+		},
+		{
+			name:     "start with blank map, add something",
+			existing: nilKeyedCentDict(),
+			k1:       "K1",
+			k2:       "K2",
+			amount:   100,
+			expected: 100,
+		},
+		{
+			name: "start with top level keys as blank maps, add something",
+			existing: KeyedCentDict{
+				"K1":  CentDict{},
+				"K1b": CentDict{},
+			},
+			k1:       "K1",
+			k2:       "K2",
+			amount:   100,
+			expected: 100,
+		},
+		{
+			name: "start with top level keys with existing, add something",
+			existing: KeyedCentDict{
+				"K1": CentDict{
+					"K2": 100,
+				},
+				"K1b": CentDict{},
+			},
+			k1:       "K1",
+			k2:       "K2",
+			amount:   100,
+			expected: 200,
+		},
+	}
+
+	for _, test := range tests {
+		test.existing.AddToKey(test.k1, test.k2, test.amount)
+		if res, ok := test.existing[test.k1][test.k2]; !ok {
+			t.Errorf("Testing %s.  Could not access map key", test.name)
+		} else if res != test.expected {
+			t.Errorf("Testing %s.  Incorrect result. Expected %v; got %v", test.name, test.expected, res)
+		}
+	}
+
+}
+
 func TestMergeWith(t *testing.T) {
 	tests := []struct {
 		name          string

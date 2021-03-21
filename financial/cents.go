@@ -175,6 +175,9 @@ func CentRatioPercentage(a, b Cents) float64 {
 }
 
 // CentDict is a string keyed map -> Cents, which is a data structure I find myself using a lot
+// A good example is a map of currency balances, e.g.:
+// GBP -> 456777
+// EUR -> 322944
 type CentDict map[string]Cents
 
 func CompareCentDicts(cd1, cd2 CentDict) bool {
@@ -321,5 +324,20 @@ func (cd CentDict) MergeWith(incoming CentDict) {
 	}
 }
 
-// CentDict2 is a map of maps: a string keyed map -> CentDict
-type CentDict2 map[string]CentDict
+// KeyedCentDict is a map of maps: a string keyed map -> CentDict
+// Useful, for example, to build up a report of regular CentDicts keyed by some variable
+// E.g. A sales report by Item Sku
+type KeyedCentDict map[string]CentDict
+
+func nilKeyedCentDict() KeyedCentDict {
+	return KeyedCentDict{}
+}
+
+func (kcd KeyedCentDict) AddToKey(k1, k2 string, amount Cents) {
+	if existing, ok := kcd[k1]; ok {
+		existing.AddToKey(k2, amount)
+		kcd[k1] = existing
+	} else {
+		kcd[k1] = CentDict{k2: amount}
+	}
+}

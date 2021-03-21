@@ -352,3 +352,11 @@ func (kcd KeyedCentDict) AllSecondLevelKeys() (res []string) {
 
 	return
 }
+
+func (kcd KeyedCentDict) AllTopLevelKeys() (res []string) {
+	for k := range kcd {
+		res = slice.StringSliceAddToSet(k, res)
+	}
+
+	return
+}

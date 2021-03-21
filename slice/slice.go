@@ -1,6 +1,7 @@
 package slice
 
 import (
+	"sort"
 	"strings"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -121,6 +122,18 @@ func StringSliceAddToSet(s string, ss []string) []string {
 	}
 
 	return append(ss, s)
+}
+
+func StringSliceOrder(ss []string, desc bool) {
+	if !desc {
+		sort.Slice(ss, func(i, j int) bool {
+			return ss[i] > ss[j]
+		})
+	} else {
+		sort.Slice(ss, func(i, j int) bool {
+			return ss[i] < ss[j]
+		})
+	}
 }
 
 func CompareStringSlicesOrderIrrelevant(ss1, ss2 []string) bool {

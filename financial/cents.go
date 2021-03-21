@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	pmath "github.com/dogpakk/lib/math"
+	"github.com/dogpakk/lib/slice"
 )
 
 type Cents int
@@ -340,4 +341,14 @@ func (kcd KeyedCentDict) AddToKey(k1, k2 string, amount Cents) {
 	} else {
 		kcd[k1] = CentDict{k2: amount}
 	}
+}
+
+func (kcd KeyedCentDict) AllSecondLevelKeys() (res []string) {
+	for _, v1 := range kcd {
+		for k := range v1 {
+			res = slice.StringSliceAddToSet(k, res)
+		}
+	}
+
+	return
 }

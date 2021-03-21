@@ -115,6 +115,14 @@ func StringSliceRemoveDuplicates(ss []string) (res []string) {
 	return
 }
 
+func StringSliceAddToSet(s string, ss []string) []string {
+	if StringIsMember(s, ss) {
+		return ss
+	}
+
+	return append(ss, s)
+}
+
 func CompareStringSlicesOrderIrrelevant(ss1, ss2 []string) bool {
 	// Low hanging fruit first
 	if len(ss1) != len(ss2) {

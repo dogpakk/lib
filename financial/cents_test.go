@@ -1,6 +1,10 @@
 package financial
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/dogpakk/lib/slice"
+)
 
 func nilCentDict() CentDict {
 	var n CentDict
@@ -117,6 +121,88 @@ func TestKeyedCentDictAddToKey(t *testing.T) {
 			t.Errorf("Testing %s.  Could not access map key", test.name)
 		} else if res != test.expected {
 			t.Errorf("Testing %s.  Incorrect result. Expected %v; got %v", test.name, test.expected, res)
+		}
+	}
+}
+
+func TestKeyedCentDictAllSecondLevelKeys(t *testing.T) {
+	tests := []struct {
+		name     string
+		src      KeyedCentDict
+		expected []string
+	}{
+		{
+			name:     "blank",
+			src:      KeyedCentDict{},
+			expected: []string{},
+		},
+		{
+			name: "blank second levels",
+			src: KeyedCentDict{
+				"K1":  CentDict{},
+				"K1b": CentDict{},
+			},
+			expected: []string{},
+		},
+		{
+			name: "2 top level, 1 second level",
+			src: KeyedCentDict{
+				"K1": CentDict{
+					"K2": 100,
+				},
+				"K1b": CentDict{},
+			},
+			expected: []string{"K2"},
+		},
+		{
+			name: "2 top level, 2 second level",
+			src: KeyedCentDict{
+				"K1": CentDict{
+					"K2": 100,
+					"K3": 100,
+				},
+				"K1b": CentDict{},
+			},
+			expected: []string{"K2", "K3"},
+		},
+		{
+			name: "2 top level, 2 second level, all duplicates",
+			src: KeyedCentDict{
+				"K1": CentDict{
+					"K2": 100,
+					"K3": 100,
+				},
+				"K1b": CentDict{
+					"K2": 100,
+					"K3": 100,
+				},
+			},
+			expected: []string{"K2", "K3"},
+		},
+		{
+			name: "2 top level, 2 second level, 1 duplicate",
+			src: KeyedCentDict{
+				"K1": CentDict{
+					"K2": 100,
+					"K3": 100,
+				},
+				"K1b": CentDict{
+					"K2":  100,
+					"K3a": 100,
+				},
+			},
+			expected: []string{"K2", "K3", "K3a"},
+		},
+	}
+
+	for _, test := range tests {
+		res := test.src.AllSecondLevelKeys()
+		if len(res) != len(test.expected) {
+			t.Errorf("Testing %s.  Incorrect result. Expected %v; got %v", test.name, len(test.expected), len(res))
+		}
+
+		if !slice.CompareStringSlicesOrderIrrelevant(res, test.expected) {
+			t.Errorf("Testing %s.  Result slices don't match. Expected %v; got %v", test.name, test.expected, res)
 		}
 	}
 

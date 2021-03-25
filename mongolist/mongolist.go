@@ -22,19 +22,20 @@ const (
 	mongoSort  = "$sort"
 
 	// filter operators
-	filterOperatorEq         = "eq"
-	filterOperatorNeq        = "neq"
-	filterOperatorGt         = "gt"
-	filterOperatorGte        = "gte"
-	filterOperatorLt         = "lt"
-	filterOperatorLte        = "lte"
-	filterOperatorStartsWith = "starts"
-	filterOperatorContains   = "contains"
-	filterOperatorEndsWith   = "ends"
-	filterOperatorBefore     = "before"
-	filterOperatorOnOrBefore = "onorbefore"
-	filterOperatorAfter      = "after"
-	filterOperatorOnOrAfter  = "onorafter"
+	filterOperatorEq              = "eq"
+	filterOperatorNeq             = "neq"
+	filterOperatorGt              = "gt"
+	filterOperatorGte             = "gte"
+	filterOperatorLt              = "lt"
+	filterOperatorLte             = "lte"
+	filterOperatorStartsWith      = "starts"
+	filterOperatorContains        = "contains"
+	filterOperatorEndsWith        = "ends"
+	filterOperatorBefore          = "before"
+	filterOperatorOnOrBefore      = "onorbefore"
+	filterOperatorAfter           = "after"
+	filterOperatorOnOrAfter       = "onorafter"
+	filterOperatorEntityNullCheck = "entityNullCheck"
 )
 
 type Filter struct {
@@ -209,6 +210,13 @@ func createFilter(field, operator string, value interface{}) (interface{}, error
 		return bson.M{
 			"$gte": t,
 		}, nil
+
+	case filterOperatorEntityNullCheck:
+		b := value.(bool)
+		if !b {
+			return bson.M{"$in": bson.A{primitive.ObjectID{}, nil}}, nil
+		}
+		return bson.M{"$gt": primitive.ObjectID{}}, nil
 
 	default:
 		// Bools are a special case, because fields are not always there in Mongo

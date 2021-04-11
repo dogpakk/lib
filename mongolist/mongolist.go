@@ -23,6 +23,7 @@ const (
 
 	// filter operators
 	filterOperatorEq              = "eq"
+	filterOperatorEqOrNull        = "eqornull"
 	filterOperatorNeq             = "neq"
 	filterOperatorGt              = "gt"
 	filterOperatorGte             = "gte"
@@ -150,7 +151,11 @@ func createFilter(field, operator string, value interface{}) (interface{}, error
 		return bson.M{
 			"$ne": value,
 		}, nil
-
+	case filterOperatorEqOrNull:
+		eqFilter, _ := createFilter(field, "eq", value)
+		return bson.M{
+			"$in": bson.A{eqFilter, nil},
+		}, nil
 	case filterOperatorGt:
 		return bson.M{
 			"$gt": value,
@@ -160,17 +165,14 @@ func createFilter(field, operator string, value interface{}) (interface{}, error
 		return bson.M{
 			"$gte": value,
 		}, nil
-
 	case filterOperatorLt:
 		return bson.M{
 			"$lt": value,
 		}, nil
-
 	case filterOperatorLte:
 		return bson.M{
 			"$lte": value,
 		}, nil
-
 	case filterOperatorBefore:
 		t, err := time.Parse(dateFormat, value.(string))
 		if err != nil {
@@ -180,7 +182,6 @@ func createFilter(field, operator string, value interface{}) (interface{}, error
 		return bson.M{
 			"$lt": t,
 		}, nil
-
 	case filterOperatorOnOrBefore:
 		t, err := time.Parse(dateFormat, value.(string))
 		if err != nil {

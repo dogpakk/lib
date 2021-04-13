@@ -154,7 +154,7 @@ func createFilter(field, operator string, value interface{}) (interface{}, error
 	case filterOperatorEqOrNull:
 		eqFilter, _ := createFilter(field, "eq", value)
 		return bson.M{
-			"$in": bson.A{eqFilter, nil},
+			"$in": bson.A{eqFilter, nil, primitive.ObjectID{}},
 		}, nil
 	case filterOperatorGt:
 		return bson.M{

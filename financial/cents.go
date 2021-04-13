@@ -126,7 +126,15 @@ func (c Cents) RoundToNearestPretty(target Cents) Cents {
 }
 
 func (c Cents) FormatAsPrice() (res string) {
+	// If the number is negative, we'll convert it to positive for processing
+	// and readd back in the sign right at the end
+	isNegative := c < 0
+	if isNegative {
+		c = -c
+	}
+
 	s := strconv.Itoa(int(c))
+
 	l := len(s)
 
 	switch l {
@@ -140,6 +148,10 @@ func (c Cents) FormatAsPrice() (res string) {
 		prefix := s[:l-2]
 		suffix := s[l-2:]
 		res = strings.Join([]string{prefix, suffix}, ".")
+	}
+
+	if isNegative {
+		res = "-" + res
 	}
 
 	return

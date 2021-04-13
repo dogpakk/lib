@@ -287,3 +287,30 @@ func TestRemoveTaxableSurcharge(t *testing.T) {
 		}
 	}
 }
+
+func TestFormatAsPrice(t *testing.T) {
+	tests := []struct {
+		c        Cents
+		expected string
+	}{
+		{0, "0.00"},
+		{1, "0.01"},
+		{10, "0.10"},
+		{100, "1.00"},
+		{1000, "10.00"},
+		{10000, "100.00"},
+		{0, "0.00"},
+		{-1, "-0.01"},
+		{-10, "-0.10"},
+		{-100, "-1.00"},
+		{-1000, "-10.00"},
+		{-10000, "-100.00"},
+	}
+
+	for _, test := range tests {
+		res := test.c.FormatAsPrice()
+		if res != test.expected {
+			t.Errorf("Comparison failed. Expected %s; got %s", test.expected, res)
+		}
+	}
+}

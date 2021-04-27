@@ -372,3 +372,53 @@ func (kcd KeyedCentDict) AllTopLevelKeys() (res []string) {
 
 	return
 }
+
+// KeyedCentDict2 is a map of map of maps: a string keyed mao of KeyedCentDict
+// An example use case is in grouping report sections
+
+type KeyedCentDict2 map[string]KeyedCentDict
+
+func nilKeyedCentDict2() KeyedCentDict2 {
+	return KeyedCentDict2{}
+}
+
+func (kcd KeyedCentDict2) AddToKey(k1, k2, k3 string, amount Cents) {
+	if existing, ok := kcd[k1]; ok {
+		existing.AddToKey(k2, k3, amount)
+		kcd[k1] = existing
+	} else {
+		kcd[k1] = KeyedCentDict{
+			k2: CentDict{k3: amount},
+		}
+	}
+}
+
+func (kcd KeyedCentDict2) AllThirdLevelKeys() (res []string) {
+	for _, v1 := range kcd {
+		for _, v2 := range v1 {
+			for k := range v2 {
+				res = slice.StringSliceAddToSet(k, res)
+			}
+		}
+	}
+
+	return
+}
+
+func (kcd KeyedCentDict2) AllSecondLevelKeys() (res []string) {
+	for _, v1 := range kcd {
+		for k := range v1 {
+			res = slice.StringSliceAddToSet(k, res)
+		}
+	}
+
+	return
+}
+
+func (kcd KeyedCentDict2) AllTopLevelKeys() (res []string) {
+	for k := range kcd {
+		res = slice.StringSliceAddToSet(k, res)
+	}
+
+	return
+}

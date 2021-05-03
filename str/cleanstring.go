@@ -1,6 +1,9 @@
 package str
 
-import "strings"
+import (
+	"encoding/json"
+	"strings"
+)
 
 // CleanString is a case-insensitive string with no leading or trailing whitespace.
 // The internal representation is lower case
@@ -20,4 +23,15 @@ func (cs CleanString) ToUpper() string {
 
 func (cs CleanString) ToLower() string {
 	return strings.ToLower(string(cs))
+}
+
+func (cs *CleanString) UnmarshalJSON(b []byte) error {
+	var s string
+	if err := json.Unmarshal(b, &s); err != nil {
+		return err
+	}
+
+	*cs = NewCleanString(s)
+
+	return nil
 }

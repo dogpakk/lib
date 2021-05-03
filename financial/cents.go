@@ -161,6 +161,10 @@ func RandCents(n int) Cents {
 	return Cents(rand.Intn(n))
 }
 
+func FromFloatPrice(f float64) Cents {
+	return Cents(math.Round(100 * f))
+}
+
 func ParseCentsFromPriceString(s string) (Cents, error) {
 	// We need this to deal with either "." or "," as unit separator
 	// but we will NOT allow thousands separators here (as they are a human thing, not a machine thing)
@@ -171,7 +175,7 @@ func ParseCentsFromPriceString(s string) (Cents, error) {
 		return 0, err
 	}
 
-	return Cents(100 * f), nil
+	return FromFloatPrice(f), nil
 }
 
 func MustParseCentsFromPriceString(s string) Cents {

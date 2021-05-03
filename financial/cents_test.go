@@ -288,7 +288,7 @@ func TestRemoveTaxableSurcharge(t *testing.T) {
 	}
 }
 
-func TestFormatAsPrice(t *testing.T) {
+func TestFormatAndParsePrices(t *testing.T) {
 	tests := []struct {
 		c        Cents
 		expected string
@@ -305,12 +305,22 @@ func TestFormatAsPrice(t *testing.T) {
 		{-100, "-1.00"},
 		{-1000, "-10.00"},
 		{-10000, "-100.00"},
+		{1949, "19.49"}, // Tests rounding - 19.49 parses to float as 19.4899999999
 	}
 
 	for _, test := range tests {
 		res := test.c.FormatAsPrice()
 		if res != test.expected {
-			t.Errorf("Comparison failed. Expected %s; got %s", test.expected, res)
+			t.Errorf("Formatting. Comparison failed. Expected %v; got %v", test.expected, res)
+		}
+
+		parsed, err := ParseCentsFromPriceString(test.expected)
+		if err != nil {
+			t.Errorf("Parsing failed: %s", err)
+		}
+
+		if parsed != test.c {
+			t.Errorf("Parsing. Comparison failed. Expected %v; got %v", test.c, parsed)
 		}
 	}
 }

@@ -1,6 +1,10 @@
 package str
 
-import "testing"
+import (
+	"encoding/json"
+	"fmt"
+	"testing"
+)
 
 func TestNewCleanString(t *testing.T) {
 	testCases := []struct {
@@ -21,8 +25,24 @@ func TestNewCleanString(t *testing.T) {
 
 	for _, test := range testCases {
 		out := NewCleanString(test.in)
-		if out.String() != test.expected {
-			t.Errorf("Testing %s failed.  Expected %s; got %s", test.name, test.expected, out)
+		if string(out) != test.expected {
+			t.Errorf("Testing %s failed.  Expected %s; got %s", test.name, test.expected, string(out))
+		}
+
+		// A little String output test for when a CleanString is forcefully created with a bad string
+		badCS := CleanString(test.in)
+		if badCS.String() != test.expected {
+			t.Errorf("Forced CS: Testing %s failed.  Expected %s; got %s", test.name, test.expected, badCS.String())
+		}
+
+		// JSON Unmarshalling
+		var newCS CleanString
+		if err := json.Unmarshal([]byte(fmt.Sprintf(`"%s"`, test.in)), &newCS); err != nil {
+			t.Errorf("Testing %s, unmarshalling, failed with error: %s.", test.name, err)
+		}
+
+		if string(newCS) != test.expected {
+			t.Errorf("Testing %s, unmarhsalling failed.  Expected %s; got %s", test.name, test.expected, string(newCS))
 		}
 	}
 

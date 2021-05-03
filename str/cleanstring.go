@@ -9,20 +9,24 @@ import (
 // The internal representation is lower case
 type CleanString string
 
+func stringToCleanString(s string) string {
+	return strings.ToLower(strings.TrimSpace(s))
+}
+
 func NewCleanString(s string) CleanString {
-	return CleanString(strings.ToLower(strings.TrimSpace(s)))
+	return CleanString(stringToCleanString(s))
 }
 
 func (cs CleanString) String() string {
-	return string(cs)
+	return stringToCleanString(string(cs))
 }
 
 func (cs CleanString) ToUpper() string {
-	return strings.ToUpper(string(cs))
+	return strings.ToUpper(cs.String())
 }
 
 func (cs CleanString) ToLower() string {
-	return strings.ToLower(string(cs))
+	return strings.ToLower(cs.String())
 }
 
 func (cs *CleanString) UnmarshalJSON(b []byte) error {
@@ -34,4 +38,8 @@ func (cs *CleanString) UnmarshalJSON(b []byte) error {
 	*cs = NewCleanString(s)
 
 	return nil
+}
+
+func (cs CleanString) MarshalJSON() ([]byte, error) {
+	return json.Marshal(cs.String())
 }

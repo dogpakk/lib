@@ -9,6 +9,8 @@ import (
 // The internal representation is lower case
 type CleanString string
 
+type CleanStrings []CleanString
+
 func stringToCleanString(s string) string {
 	return strings.ToLower(strings.TrimSpace(s))
 }
@@ -42,4 +44,12 @@ func (cs *CleanString) UnmarshalJSON(b []byte) error {
 
 func (cs CleanString) MarshalJSON() ([]byte, error) {
 	return json.Marshal(cs.String())
+}
+
+func (css CleanStrings) StringSlice() (res []string) {
+	for _, cs := range css {
+		res = append(res, cs.String())
+	}
+
+	return
 }

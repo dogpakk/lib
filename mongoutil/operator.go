@@ -1,6 +1,6 @@
 package mongoutil
 
-type Operator string
+type Operator = string
 
 const (
 	// Operators

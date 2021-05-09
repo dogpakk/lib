@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/dogpakk/lib/mongoutil"
+	mu "github.com/dogpakk/lib/mongoutil"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -53,6 +55,50 @@ type ListState struct {
 	Limit            int      `json:"limit"`
 	Offset           int      `json:"offset"`
 	IncludeInactives bool     `json:"includeInactives"`
+}
+
+func (ls ListState) FindQuery() (mongoutil.FindQuery, error) {
+	// Initialse with a blank query, which we might even end up using
+	// if there are no filters
+	findQuery := mu.NewFindQuery(mu.NewQuery(), ls.Order, ls.OrderDescending, ls.Offset, ls.Limit)
+
+	// Build up the list of filters from the listState
+	var filters mu.Filters
+	for _, filter := range ls.Filters {
+		f, err := createFilter(filter.Field, filter.Operator, filter.Value)
+		if err != nil {
+			return findQuery, err
+		}
+
+		filters = append(filters, mu.NewFilter(filter.Field, f))
+	}
+
+	// Initialise a top level list of filters
+	var topFilters mu.Filters
+
+	// Inactives
+	if !ls.IncludeInactives {
+		topFilters = append(topFilters, mu.NewFilter("inactive", mu.NewFilterQuery(mu.OpIn, bson.A{false, nil})))
+	}
+
+	// If there were any filters from the listState, add them under the correct
+	// combining operator
+	if len(filters) > 0 {
+		filterCombine := mu.OpAnd
+		if ls.FilterCombineOr {
+			filterCombine = mu.OpOr
+		}
+		topFilters = append(topFilters, mu.NewFilter(filterCombine, filters.ToQueryArray()))
+	}
+
+	// It still might be the case that there are no top level filters, so we only
+	// overwite the blank query if there are any
+
+	if len(topFilters) > 0 {
+		findQuery.Query = mu.NewFilterQuery(mu.OpAnd, topFilters.ToQueryArray())
+	}
+
+	return findQuery, nil
 }
 
 func BodyToPipelines(listState ListState) (bson.A, bson.A, error) {

@@ -25,7 +25,7 @@ func order(sortDescending bool) int {
 }
 
 func NewFindQueryAll() FindQuery {
-	return NewBlankQuery().NewFindQuery()
+	return NewBlankQuery().NewDefaultFindQuery()
 }
 
 func NewFindQuery(q Query, sortField string, sortDescending bool, offset, limit int) FindQuery {
@@ -61,6 +61,10 @@ func (fq FindQuery) FindOptions() *options.FindOptions {
 	return opts
 }
 
+func (fq *FindQuery) SetLimit(i int) {
+	fq.Limit = i
+}
+
 // Query is a MongoDB query implemented using bson.M for ease of manipulation
 // Note that bson.M is almost the same as bson.D but does not maintain order
 // Normally, in a query, this should not be important
@@ -76,8 +80,12 @@ func NewQuery(fieldName string, val interface{}) Query {
 	return Query(bson.M{fieldName: val})
 }
 
-func (q Query) NewFindQuery() FindQuery {
+func (q Query) NewDefaultFindQuery() FindQuery {
 	return NewFindQuery(q, "", false, 0, 0)
+}
+
+func (q Query) NewFindQuery(sortField string, sortDescending bool, offset, limit int) FindQuery {
+	return NewFindQuery(q, sortField, sortDescending, offset, limit)
 }
 
 func (q Query) AddFilter(fieldName string, val interface{}) Query {

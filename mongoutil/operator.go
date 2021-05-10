@@ -60,10 +60,10 @@ const (
 
 	// Projection Operators
 
-	OpDollar    Operator = "$"          // Projects the first element in an array that matches the query condition.
-	OpElemmatch Operator = "$elemMatch" // Projects the first element in an array that matches the specified $elemMatch condition.
-	OpMeta      Operator = "$meta"      // Projects the document's score assigned during $text operation.
-	OpSlice     Operator = "$slice"     // Limits the number of elements projected from an array. Supports skip and limit slices.
+	OpDollar Operator = "$" // Projects the first element in an array that matches the query condition.
+	//OpElemMatch Operator = "$elemMatch" // Projects the first element in an array that matches the specified $elemMatch condition.
+	OpMeta  Operator = "$meta"  // Projects the document's score assigned during $text operation.
+	OpSlice Operator = "$slice" // Limits the number of elements projected from an array. Supports skip and limit slices.
 
 	// Miscellaneous Operators
 

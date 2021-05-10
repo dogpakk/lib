@@ -24,7 +24,7 @@ func order(sortDescending bool) int {
 	return direction
 }
 
-func NewFindQueryAll(q Query, sortField string, sortDescending bool, offset, limit int) FindQuery {
+func NewFindQueryAll() FindQuery {
 	return NewBlankQuery().NewFindQuery()
 }
 

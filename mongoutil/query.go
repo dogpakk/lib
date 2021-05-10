@@ -72,6 +72,10 @@ func NewQuery(fieldName string, val interface{}) Query {
 	return Query(bson.M{fieldName: val})
 }
 
+func (q Query) NewFindQuery() FindQuery {
+	return NewFindQuery(q, "", false, 0, 0)
+}
+
 func (q Query) AddFilter(fieldName string, val interface{}) Query {
 	q[fieldName] = val
 	return q

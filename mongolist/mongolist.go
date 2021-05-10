@@ -60,25 +60,25 @@ type ListState struct {
 func (ls ListState) FindQuery() (mongoutil.FindQuery, error) {
 	// Initialse with a blank query, which we might even end up using
 	// if there are no filters
-	findQuery := mu.NewFindQuery(mu.NewQuery(), ls.Order, ls.OrderDescending, ls.Offset, ls.Limit)
+	findQuery := mu.NewFindQuery(mu.NewBlankQuery(), ls.Order, ls.OrderDescending, ls.Offset, ls.Limit)
 
 	// Build up the list of filters from the listState
-	var filters mu.Filters
+	var filters mu.Queries
 	for _, filter := range ls.Filters {
 		f, err := createFilter(filter.Field, filter.Operator, filter.Value)
 		if err != nil {
 			return findQuery, err
 		}
 
-		filters = append(filters, mu.NewFilter(filter.Field, f))
+		filters = append(filters, mu.NewQuery(filter.Field, f))
 	}
 
 	// Initialise a top level list of filters
-	var topFilters mu.Filters
+	var topFilters mu.Queries
 
 	// Inactives
 	if !ls.IncludeInactives {
-		topFilters = append(topFilters, mu.NewFilter("inactive", mu.NewFilterQuery(mu.OpIn, bson.A{false, nil})))
+		topFilters = append(topFilters, mu.NewQuery("inactive", mu.NewQuery(mu.OpIn, bson.A{false, nil})))
 	}
 
 	// If there were any filters from the listState, add them under the correct
@@ -88,14 +88,14 @@ func (ls ListState) FindQuery() (mongoutil.FindQuery, error) {
 		if ls.FilterCombineOr {
 			filterCombine = mu.OpOr
 		}
-		topFilters = append(topFilters, mu.NewFilter(filterCombine, filters.ToQueryArray()))
+		topFilters = append(topFilters, mu.NewQuery(filterCombine, filters))
 	}
 
 	// It still might be the case that there are no top level filters, so we only
 	// overwite the blank query if there are any
 
 	if len(topFilters) > 0 {
-		findQuery.Query = mu.NewFilterQuery(mu.OpAnd, topFilters.ToQueryArray())
+		findQuery.Query = mu.NewQuery(mu.OpAnd, topFilters)
 	}
 
 	return findQuery, nil

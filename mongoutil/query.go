@@ -34,7 +34,7 @@ func NewFindQuery(q Query, sortField string, sortDescending bool, offset, limit 
 	// Sorting
 	if sortField != "" {
 		direction := order(sortDescending)
-		fq.Sort = NewFilterQuery(sortField, direction)
+		fq.Sort = NewQuery(sortField, direction)
 	}
 
 	return fq
@@ -62,50 +62,34 @@ func (fq FindQuery) FindOptions() *options.FindOptions {
 // Normally, in a query, this should not be important
 type Query bson.M
 
-func NewQuery() Query {
+type Queries []Query
+
+func NewBlankQuery() Query {
 	return Query(bson.M{})
 }
 
-func NewFilterQuery(fieldName string, val interface{}) Query {
-	return NewFilter(fieldName, val).ToQuery()
+func NewQuery(fieldName string, val interface{}) Query {
+	return Query(bson.M{fieldName: val})
 }
 
-type Filter struct {
-	FieldName string
-	Val       interface{}
-}
-
-func NewFilter(fieldName string, val interface{}) Filter {
-	return Filter{
-		FieldName: fieldName,
-		Val:       val,
-	}
-}
-
-type Filters []Filter
-
-func (f Filter) ToQuery() Query {
-	return Query(bson.M{f.FieldName: f.Val})
-}
-
-func (q Query) AddFilter(f Filter) {
-	q[f.FieldName] = f.Val
-}
-
-func (fs Filters) ToQuery() Query {
-	q := NewQuery()
-
-	for _, f := range fs {
-		q.AddFilter(f)
-	}
-
+func (q Query) AddFilter(fieldName string, val interface{}) Query {
+	q[fieldName] = val
 	return q
 }
 
-func (fs Filters) ToQueryArray() (res []Query) {
-	for _, f := range fs {
-		res = append(res, f.ToQuery())
+func (q Query) AddSubQuery(fieldNameA, fieldNameB string, val interface{}) Query {
+	q[fieldNameA] = NewQuery(fieldNameA, val)
+	return q
+}
+
+func (qs Queries) ToQuery() Query {
+	nq := NewBlankQuery()
+
+	for _, q := range qs {
+		for fieldName, val := range q {
+			nq.AddFilter(fieldName, val)
+		}
 	}
 
-	return res
+	return nq
 }

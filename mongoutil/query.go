@@ -77,6 +77,15 @@ func (q Query) AddFilter(fieldName string, val interface{}) Query {
 	return q
 }
 
+func (q Query) MergeQuery(incoming Query) Query {
+	// Incoming takes priority
+	for fieldName, val := range incoming {
+		q[fieldName] = val
+	}
+
+	return q
+}
+
 func (q Query) AddSubQuery(fieldNameA, fieldNameB string, val interface{}) Query {
 	q[fieldNameA] = NewQuery(fieldNameA, val)
 	return q

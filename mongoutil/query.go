@@ -85,6 +85,14 @@ func (q Query) AddFilter(fieldName string, val interface{}) Query {
 	return q
 }
 
+func (q Query) AddFilterIf(test bool, fieldName string, val interface{}) Query {
+	if !test {
+		return q
+	}
+
+	return q.AddFilter(fieldName, val)
+}
+
 func (q Query) MergeQuery(incoming Query) Query {
 	// Incoming takes priority
 	for fieldName, val := range incoming {

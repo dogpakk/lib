@@ -10,7 +10,7 @@ type TaxRoundingMethod uint
 const (
 	TaxRoundingMethodUnit TaxRoundingMethod = iota
 	TaxRoundingMethodLine
-	TaxRoudingMethodTotals
+	TaxRoundingMethodTotals
 )
 
 type TaxCalc struct {

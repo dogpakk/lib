@@ -5,39 +5,72 @@ package financial
 // as described in this post https://pakk.io/post/vat-rounding
 // Make sure this is actually how you want to calculate tax before using
 
-type TaxCalc struct {
-	Qty           int
-	TaxPercentage float64
+type TaxRoundingMethod uint
 
-	UnitEx, Ex, Tax, Inc Cents
+const (
+	TaxRoundingMethodUnit TaxRoundingMethod = iota
+	TaxRoundingMethodLine
+	TaxRoudingMethodTotals
+)
+
+type TaxCalc struct {
+	RoundingMethod TaxRoundingMethod
+	LineQty        int
+	TaxPercentage  float64
+
+	UnitEx, LineEx, LineTax, LineInc Cents
 }
 
 type TaxCalcs []TaxCalc
 
 func (tx *TaxCalc) blank() {
 	tx.UnitEx = 0
-	tx.Ex = 0
-	tx.Tax = 0
-	tx.Inc = 0
+	tx.LineEx = 0
+	tx.LineTax = 0
+	tx.LineInc = 0
 }
 
 // startFromEx basically resets the calculation, leaving the Ex as the starting point
 // and setting inc to ex (i.e. a zero tax rate)
 func (tx *TaxCalc) startFromUnitEx() {
-	tx.Tax = 0
-	tx.Ex = 0
-	tx.Inc = 0
+	tx.LineTax = 0
+	tx.LineEx = 0
+	tx.LineInc = 0
 }
 
 func (tx *TaxCalc) startFromInc() {
 	tx.UnitEx = 0
-	tx.Ex = 0
-	tx.Tax = 0
+	tx.LineEx = 0
+	tx.LineTax = 0
+}
+
+// AddTax adds tax for a line unit price and qty.  By default it uses the "line" rounding method,
+// but can also use the "unit" method.  The "total" method is irrelevant here because
+// line tax totals don't come into place in that case, so we just use the default line method as well.
+func (tx *TaxCalc) AddTax() {
+	if tx.RoundingMethod == TaxRoundingMethodUnit {
+		tx.AddTaxUnitMethod()
+		return
+	}
+
+	tx.AddTaxLineMethod()
+}
+
+// RemoveTax removes tax for a line unit price and qty.  By default it uses the "line" rounding method,
+// but can also use the "unit" method.  The "total" method is irrelevant here because
+// line tax totals don't come into place in that case, so we just use the default line method as well.
+func (tx *TaxCalc) RemoveTax() {
+	if tx.RoundingMethod == TaxRoundingMethodUnit {
+		tx.RemoveTaxUnitMethod()
+		return
+	}
+
+	tx.RemoveTaxLineMethod()
 }
 
 // AddTax goes from a unit ex price, qty and tax percentage to total line ex, tax and inc
-func (tx *TaxCalc) AddTax() {
-	qty := tx.Qty
+func (tx *TaxCalc) AddTaxUnitMethod() {
+	qty := tx.LineQty
 	taxPercentage := tx.TaxPercentage
 
 	// zero quantity means everything is zero
@@ -54,15 +87,37 @@ func (tx *TaxCalc) AddTax() {
 	unitTax := tx.UnitEx.ByPercentage(taxPercentage)
 	unitInc := tx.UnitEx + unitTax
 
-	tx.Ex = tx.UnitEx * Cents(qty)
-	tx.Tax = unitTax * Cents(qty)
-	tx.Inc = unitInc * Cents(qty)
+	tx.LineEx = tx.UnitEx * Cents(qty)
+	tx.LineTax = unitTax * Cents(qty)
+	tx.LineInc = unitInc * Cents(qty)
 
 	return
 }
 
-func (tx *TaxCalc) RemoveTax() {
-	qty := tx.Qty
+func (tx *TaxCalc) AddTaxLineMethod() {
+	qty := tx.LineQty
+	taxPercentage := tx.TaxPercentage
+
+	// zero quantity means everything is zero
+	if qty == 0 {
+		tx.blank()
+		return
+	}
+
+	// Reset
+	tx.startFromUnitEx()
+
+	// This is the line method, so multiply out the line ex total first
+	// and use that as the basis of the tax calculation
+	tx.LineEx = tx.UnitEx * Cents(qty)
+	tx.LineTax = tx.LineEx.ByPercentage(taxPercentage)
+	tx.LineInc = tx.LineEx + tx.LineTax
+
+	return
+}
+
+func (tx *TaxCalc) RemoveTaxUnitMethod() {
+	qty := tx.LineQty
 	taxPercentage := tx.TaxPercentage
 
 	// zero quantity means everything is zero
@@ -76,13 +131,31 @@ func (tx *TaxCalc) RemoveTax() {
 
 	// Remeber, this is the unit method, so division by qty is first
 	// which gets us to a unit inc
-	unitInc := tx.Inc / Cents(qty)
+	unitInc := tx.LineInc / Cents(qty)
 	unitEx := unitInc.RemovePercentage(taxPercentage)
 	unitTax := unitInc - unitEx
 
 	tx.UnitEx = unitEx
-	tx.Ex = unitEx * Cents(qty)
-	tx.Tax = unitTax * Cents(qty)
+	tx.LineEx = unitEx * Cents(qty)
+	tx.LineTax = unitTax * Cents(qty)
+}
+
+func (tx *TaxCalc) RemoveTaxLineMethod() {
+	qty := tx.LineQty
+	taxPercentage := tx.TaxPercentage
+
+	// zero quantity means everything is zero
+	if qty == 0 {
+		tx.blank()
+		return
+	}
+
+	// Reset
+	tx.startFromInc()
+
+	tx.LineEx = tx.LineInc.RemovePercentage(taxPercentage)
+	tx.LineTax = tx.LineInc - tx.LineEx
+	tx.UnitEx = tx.LineEx / Cents(qty)
 }
 
 func (txs TaxCalcs) CalcAggTaxRate() float64 {
@@ -96,7 +169,7 @@ func (txs TaxCalcs) CalcAggTaxRate() float64 {
 	var totalEx, totalTax float64
 
 	for _, tx := range txs {
-		lineEx := float64(tx.UnitEx) * float64(tx.Qty)
+		lineEx := float64(tx.UnitEx) * float64(tx.LineQty)
 		totalEx = totalEx + lineEx
 		tax := lineEx * (tx.TaxPercentage / 100)
 		totalTax = totalTax + tax

@@ -70,34 +70,38 @@ func (c Cents) RemoveTaxableSurcharge(surchargePercentage, taxPercentage float64
 
 }
 
-func (c Cents) AddTax(taxPercentage float64) (Cents, Cents) {
-	return c.AddTaxMultipleQuantity(1, taxPercentage)
+func (c Cents) AddTax(taxPercentage float64) TaxCalc {
+	// Rounding method makes no difference for single unit
+	return c.AddTaxMultipleQuantity(1, taxPercentage, TaxRoundingMethodUnit)
 }
 
-func (c Cents) AddTaxMultipleQuantity(qty int, taxPercentage float64) (Cents, Cents) {
+func (c Cents) AddTaxMultipleQuantity(qty int, taxPercentage float64, roundingMethod TaxRoundingMethod) TaxCalc {
 	taxCalc := TaxCalc{
-		Qty:           qty,
-		UnitEx:        c,
-		TaxPercentage: taxPercentage,
+		RoundingMethod: roundingMethod,
+		LineQty:        qty,
+		UnitEx:         c,
+		TaxPercentage:  taxPercentage,
 	}
 
 	taxCalc.AddTax()
-	return taxCalc.Tax, taxCalc.Inc
+	return taxCalc
 }
 
-func (c Cents) RemoveTax(taxPercentage float64) (Cents, Cents) {
-	return c.RemoveTaxMultipleQuantity(1, taxPercentage)
+func (c Cents) RemoveTax(taxPercentage float64) TaxCalc {
+	// Rounding method makes no difference for single unit
+	return c.RemoveTaxMultipleQuantity(1, taxPercentage, TaxRoundingMethodUnit)
 }
 
-func (c Cents) RemoveTaxMultipleQuantity(qty int, taxPercentage float64) (Cents, Cents) {
+func (c Cents) RemoveTaxMultipleQuantity(qty int, taxPercentage float64, roundingMethod TaxRoundingMethod) TaxCalc {
 	taxCalc := TaxCalc{
-		Qty:           qty,
-		Inc:           c,
-		TaxPercentage: taxPercentage,
+		RoundingMethod: roundingMethod,
+		LineQty:        qty,
+		LineInc:        c,
+		TaxPercentage:  taxPercentage,
 	}
 
 	taxCalc.RemoveTax()
-	return taxCalc.Tax, taxCalc.Ex
+	return taxCalc
 }
 
 func (c Cents) SplitHundredths() (Cents, Cents) {

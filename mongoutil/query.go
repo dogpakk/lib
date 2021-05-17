@@ -61,6 +61,20 @@ func (fq FindQuery) FindOptions() *options.FindOptions {
 	return opts
 }
 
+func (fq FindQuery) FindOneOptions() *options.FindOneOptions {
+	opts := options.FindOne()
+
+	if fq.Offset != 0 {
+		opts.SetSkip(int64(fq.Offset))
+	}
+
+	if fq.Sort != nil {
+		opts.SetSort(fq.Sort)
+	}
+
+	return opts
+}
+
 func (fq *FindQuery) SetLimit(i int) {
 	fq.Limit = i
 }

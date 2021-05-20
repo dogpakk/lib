@@ -34,6 +34,28 @@ func TestCentRatio(t *testing.T) {
 	}
 }
 
+func TestCentDictResetAllValues(t *testing.T) {
+	tests := []struct {
+		name string
+		cd   CentDict
+	}{
+		{"blank", CentDict{}},
+		{"one key already nil", CentDict{"one": 0}},
+		{"two keys already nil", CentDict{"one": 0, "two": 0}},
+		{"two keys already nil", CentDict{"one": 0, "two": 0}},
+		{"one key", CentDict{"one": 99}},
+		{"two keys mixed", CentDict{"one": 0, "two": 99}},
+		{"two keys", CentDict{"one": 99, "two": 99}},
+	}
+
+	for _, test := range tests {
+		test.cd.ResetAllValues()
+		if test.cd.HasAnyNonZeroValues() {
+			t.Errorf("Testing %s.  Expecting all values to be zero but got: %v", test.name, test.cd)
+		}
+	}
+}
+
 func TestHasOneKey(t *testing.T) {
 	tests := []struct {
 		name           string

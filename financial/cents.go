@@ -201,6 +201,12 @@ func CentRatioPercentage(a, b Cents) float64 {
 // EUR -> 322944
 type CentDict map[string]Cents
 
+func (cd CentDict) ResetAllValues() {
+	for k := range cd {
+		cd[k] = 0
+	}
+}
+
 func CompareCentDicts(cd1, cd2 CentDict) bool {
 	for k1, v1 := range cd1 {
 		if v1 > 0 {
@@ -276,6 +282,16 @@ func (cd CentDict) HasPositiveVals() bool {
 func (cd CentDict) HasNegativeVals() bool {
 	for _, v := range cd {
 		if v < 0 {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (cd CentDict) HasAnyNonZeroValues() bool {
+	for _, v := range cd {
+		if v != 0 {
 			return true
 		}
 	}
